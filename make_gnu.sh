@@ -26,8 +26,15 @@ set -e
 # training and inference examples
 
 # Default Pytorch containers seem to have Pytorch installed through conda
-PY_SITE_PATH=$(find /opt/conda/lib/ -maxdepth 1 -name 'python?.*' -type d)/site-packages
-CMAKE_PREFIX_PATH="${PY_SITE_PATH}/torch/share/cmake;${PY_SITE_PATH}/pybind11/share/cmake"
+#PY_SITE_PATH=$(find /opt/conda/lib/ -maxdepth 1 -name 'python?.*' -type d)/site-packages
+#CMAKE_PREFIX_PATH="${PY_SITE_PATH}/torch/share/cmake;${PY_SITE_PATH}/pybind11/share/cmake"
+
+VIRTUAL_ENV="/home/h6/sekr289a/torchfortran/pytorch-fortran/virtualenv/py3.10.4_cu118_torch2"
+PYPATH=${VIRTUAL_ENV}/lib/python3.10
+## CMAKE_PREFIX_PATH is used inside cmake to find packages
+CMAKE_PREFIX_PATH="${PYPATH}/site-packages/torch/share/cmake:${PYPATH}/site-packages/pybind11/share/cmake"
+PYG="/home/h6/sekr289a/torchfortran/pyg"
+CMAKE_PREFIX_PATH=$CMAKE_PREFIX_PATH:"$PYG/pytorch_scatter/install/share/cmake:$PYG/pytorch_sparse/install/share/cmake"
 echo "Trying to use Python libraries from $PY_SITE_PATH"
 
 CONFIG=Release
