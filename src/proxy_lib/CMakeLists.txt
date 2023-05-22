@@ -31,6 +31,9 @@ endif()
 
 set(CMAKE_INSTALL_RPATH_USE_LINK_PATH ON)
 find_package(Torch REQUIRED)
+find_package(TorchScatter REQUIRED)
+find_package(TorchSparse REQUIRED)
+find_package(Python3 COMPONENTS Development)
 find_package(Python3 REQUIRED COMPONENTS Interpreter Development)
 find_package(pybind11 REQUIRED)
 
@@ -62,6 +65,8 @@ string(REPLACE "libc10.so" "" torch_lib_dir ${filtered_lib})
 target_link_libraries(pytorch_proxy PRIVATE Python3::Python)
 target_link_libraries(pytorch_proxy PRIVATE "${torch_lib_dir}/libtorch_python.so")
 target_link_libraries(pytorch_proxy PRIVATE "${TORCH_LIBRARIES}")
+target_link_libraries(pytorch_proxy PRIVATE TorchScatter::TorchScatter)
+target_link_libraries(pytorch_proxy PRIVATE TorchSparse::TorchSparse)
 target_include_directories(pytorch_proxy PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/../common")
 
 # Installation settings
