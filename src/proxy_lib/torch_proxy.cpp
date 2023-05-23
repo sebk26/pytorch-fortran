@@ -221,6 +221,56 @@ void torch_module_forward_cpp(void* h_module, void* h_inputs, void** h_output, i
     update_map(p_tensor->data_ptr(), mod->host_cache);
 }
 
+/* Helper for arbitrary number of input */
+IWrap convertInputs(const std::vector<torch::Tensor>& inputs) {
+  IWrap ivalueInputs;
+  ivalueInputs.reserve(inputs.size());
+
+  for (const auto& input : inputs) {
+    ivalueInputs.push_back(torch::IValue(input));
+  }
+
+  return ivalueInputs;
+}
+/* MultiInput Forward
+* from: https://discuss.pytorch.org/t/creating-a-tuple-of-tensors-as-input-to-a-traced-model-with-the-c-front-end/37196
+*/
+void torch_module_forward7_cpp(void* h_module, void* h_inputs1, 
+                                               void* h_inputs2,
+                                               void* h_inputs3,
+                                               void* h_inputs4,
+                                               void* h_inputs5,
+                                               void* h_inputs6,
+                                               void* h_inputs7,
+                                               void** h_output, int flags) {
+ 
+  c10::InferenceMode mode( is_present_flag(flags, TORCH_FTN_MODULE_USE_INFERENCE_MODE) );
+  auto mod    = static_cast<JITModule*>(h_module);
+    
+  auto inputs1 = static_cast<IWrap*>(h_inputs1);
+  auto inputs2 = static_cast<IWrap*>(h_inputs2);
+  auto inputs3 = static_cast<IWrap*>(h_inputs3);
+  auto inputs4 = static_cast<IWrap*>(h_inputs4);
+  auto inputs5 = static_cast<IWrap*>(h_inputs5);
+  auto inputs6 = static_cast<IWrap*>(h_inputs6);
+  auto inputs7 = static_cast<IWrap*>(h_inputs7);
+  IWrap tuple;
+  IWrap inputs;
+  tuple.push_back(inputs1);
+  tuple.push_back(inputs2);
+  tuple.push_back(inputs3);
+  tuple.push_back(inputs4);
+  tuple.push_back(inputs5);
+  tuple.push_back(inputs6);
+  tuple.push_back(inputs7);
+  inputs.push_back(torch::ivalue::Tuple::create(tuple));
+
+  if (*h_output == nullptr) { *h_output = static_cast<void*>(new torch::Tensor); }
+  auto p_tensor = static_cast<torch::Tensor*>(*h_output);
+  *p_tensor = mod->jit_module.forward(inputs).toTensor().contiguous();
+  update_map(p_tensor->data_ptr(), mod->host_cache);
+}
+
 void torch_module_train_cpp(void* h_module, void* h_inputs, void* h_target, void* h_optimizer, float* loss) {
     auto mod = static_cast<JITModule*>(h_module);
     auto inputs = static_cast<IWrap*>(h_inputs);
@@ -246,6 +296,7 @@ void torch_module_save_cpp(void* h_module, char* filename) {
 void torch_module_free_cpp(void* h_module) {
     delete static_cast<JITModule*>(h_module);
 }
+
 
 /*
  * Python Module

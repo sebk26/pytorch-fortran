@@ -41,6 +41,7 @@ module torch_ftn
     contains
         procedure :: load                 => torch_module_load
         procedure :: forward              => torch_module_forward
+        procedure :: forward7             => torch_module_forward7
         procedure :: train                => torch_module_train
         procedure :: create_optimizer_sgd => torch_module_create_optimizer_sgd
         procedure :: save                 => torch_module_save
@@ -155,6 +156,26 @@ module torch_ftn
     end interface
 
     interface
+        subroutine torch_module_forward7_cpp(module, inputs1, inputs2, &
+                inputs3, inputs4, inputs5, inputs6, inputs7, output, flags) & 
+                bind(c, name="torch_module_forward7_cpp")
+
+            use, intrinsic :: iso_c_binding
+            type(c_ptr), intent(in), value :: module
+            type(c_ptr), intent(in) :: inputs1
+            type(c_ptr), intent(in) :: inputs2
+            type(c_ptr), intent(in) :: inputs3
+            type(c_ptr), intent(in) :: inputs4
+            type(c_ptr), intent(in) :: inputs5
+            type(c_ptr), intent(in) :: inputs6
+            type(c_ptr), intent(in) :: inputs7
+            type(c_ptr), intent(inout) :: output
+            integer(c_int), intent(in), value :: flags
+
+        end subroutine torch_module_forward7_cpp
+    end interface
+
+    interface
         subroutine torch_module_train_cpp(module, inputs, target, optimizer, loss) &
             bind(c, name="torch_module_train_cpp")
 
@@ -211,7 +232,6 @@ module torch_ftn
             type(c_ptr),    intent(inout)       :: output
         end subroutine
     end interface
-
 
     interface
         subroutine torch_pymodule_train_cpp(module, inputs, target, is_completed, loss) &
@@ -413,6 +433,34 @@ module torch_ftn
         end if
 
         call torch_module_forward_cpp(this%handle, inputs%handle, output%handle, actual_flags)
+    end subroutine
+
+    subroutine torch_module_forward7(this, inputs1, inputs2, inputs3, &
+                                     inputs4, inputs5, inputs6, inputs7, &
+                                     output, flags)
+        class(torch_module),     intent(inout)   :: this
+        type(torch_tensor_wrap), intent(in)      :: inputs1
+        type(torch_tensor_wrap), intent(in)      :: inputs2
+        type(torch_tensor_wrap), intent(in)      :: inputs3
+        type(torch_tensor_wrap), intent(in)      :: inputs4
+        type(torch_tensor_wrap), intent(in)      :: inputs5
+        type(torch_tensor_wrap), intent(in)      :: inputs6
+        type(torch_tensor_wrap), intent(in)      :: inputs7
+        type(torch_tensor),      intent(inout)   :: output
+        integer, optional,       intent(in)      :: flags
+
+        integer :: actual_flags
+        
+        actual_flags = 0
+        if (present(flags)) then
+            actual_flags = flags
+        end if
+             
+        call torch_module_forward7_cpp(this%handle, inputs1%handle, &
+                                       inputs2%handle, inputs3%handle, &
+                                       inputs4%handle, inputs5%handle, &
+                                       inputs6%handle, inputs7%handle, &
+                                       output%handle, actual_flags)
     end subroutine
 
     subroutine torch_module_train(this, inputs, target, loss)
