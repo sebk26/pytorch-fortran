@@ -29,7 +29,7 @@
 #include <pybind11/embed.h>
 
 #include <torchscatter/scatter.h>
-/*#include <torchsparse/sparse.h>*/
+#include <torchsparse/sparse.h>
 
 #include "defines.inc"
 #include "torch_proxy.h"
