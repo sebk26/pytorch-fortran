@@ -28,6 +28,14 @@ extern "C" {
 
     void torch_module_load_cpp(void** h_module, const char* file_name, int flags);
     void torch_module_forward_cpp(void* h_module, void* h_input, void** h_output, int flags);
+    void torch_module_forward7_cpp(void* h_module, void* h_inputs1, 
+                                               void* h_inputs2,
+                                               void* h_inputs3,
+                                               void* h_inputs4,
+                                               void* h_inputs5,
+                                               void* h_inputs6,
+                                               void* h_inputs7,
+                                               void** h_output, int flags);
     void torch_module_train_cpp(void* h_module, void* h_input, void* h_target, void* h_optimizer, float* loss);
     void torch_optimizer_create_sgd_cpp(void** handle, void* h_module, float lr);
     void torch_module_save_cpp(void* h_module, char* filename);
