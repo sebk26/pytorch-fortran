@@ -1,3 +1,6 @@
+Reference this fork: [![DOI](https://zenodo.org/badge/630825568.svg)](https://doi.org/10.5281/zenodo.16939575)
+
+
 # Pytorch Fortran bindings
 
 The goal of this code is to provide Fortran HPC codes with a simple way to use Pytorch deep learning framework.
